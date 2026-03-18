@@ -1,13 +1,21 @@
 "use client"
 
-import { motion, useTransform } from "framer-motion"
+import { motion, useTransform, MotionValue } from "framer-motion"
+
+
+interface CarouselCardProps {
+  video: string
+  index: number
+  total: number
+  scrollYProgress: MotionValue<number>
+}
 
 export default function CarouselCard({
   video,
   index,
   total,
   scrollYProgress,
-}) {
+}: CarouselCardProps) {
   const basePosition = index - (total - 1) / 2
 
   const progress = useTransform(scrollYProgress, [0, 1], [-3, 3])
@@ -30,7 +38,7 @@ export default function CarouselCard({
   /* ✅ stacking fix */
   const zIndex = useTransform(distance, [0, 3], [100, 0])
 
-  /* ✨ FIXED blur + brightness */
+  /* ✨ blur + brightness */
   const blurValue = useTransform(distance, [0, 3], [0, 6])
   const blur = useTransform(blurValue, (b) => `blur(${b}px)`)
 
@@ -51,7 +59,7 @@ export default function CarouselCard({
         rotateY,
         z,
         zIndex,
-        filter: blur, // ✅ FIXED
+        filter: blur,
         transformStyle: "preserve-3d",
       }}
       className="absolute w-[360px] h-[240px] rounded-3xl overflow-hidden shadow-2xl will-change-transform"
@@ -62,14 +70,13 @@ export default function CarouselCard({
         muted
         playsInline
         style={{
-          filter: brightness, // ✅ FIXED
+          filter: brightness,
         }}
         className="w-full h-full object-cover"
       >
         <source src={video} type="video/mp4" />
       </motion.video>
 
-      {/* glow */}
       <motion.div
         style={{ opacity: glowOpacity }}
         className="absolute inset-0 bg-white/10 backdrop-blur-md"
