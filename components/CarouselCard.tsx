@@ -1,13 +1,19 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import { motion, useTransform, MotionValue } from "framer-motion"
 
+/* ✅ Client-only spline */
+const Spline = dynamic(() => import("@splinetool/react-spline"), {
+  ssr: false,
+})
 
 interface CarouselCardProps {
   video: string
   index: number
   total: number
   scrollYProgress: MotionValue<number>
+  splineScene?: string
 }
 
 export default function CarouselCard({
@@ -15,7 +21,9 @@ export default function CarouselCard({
   index,
   total,
   scrollYProgress,
+  splineScene,
 }: CarouselCardProps) {
+
   const basePosition = index - (total - 1) / 2
 
   const progress = useTransform(scrollYProgress, [0, 1], [-3, 3])
@@ -32,21 +40,19 @@ export default function CarouselCard({
   const z = useTransform(distance, [0, 1, 3], [400, 0, -200])
   const opacity = useTransform(distance, [0, 2], [1, 0.3])
 
-  /* ✅ flat at center */
+  /* flat at center */
   const rotateY = useTransform(distance, [0, 1.5], [0, -25])
 
-  /* ✅ stacking fix */
+  /* stacking fix */
   const zIndex = useTransform(distance, [0, 3], [100, 0])
 
-  /* ✨ blur + brightness */
+  /* blur */
   const blurValue = useTransform(distance, [0, 3], [0, 6])
   const blur = useTransform(blurValue, (b) => `blur(${b}px)`)
 
+  /* brightness */
   const brightnessValue = useTransform(distance, [0, 3], [1, 0.5])
-  const brightness = useTransform(
-    brightnessValue,
-    (b) => `brightness(${b})`
-  )
+  const brightness = useTransform(brightnessValue, (b) => `brightness(${b})`)
 
   const glowOpacity = useTransform(distance, [0, 1], [0.25, 0])
 
@@ -62,25 +68,39 @@ export default function CarouselCard({
         filter: blur,
         transformStyle: "preserve-3d",
       }}
-      className="absolute w-[360px] h-[240px] rounded-3xl overflow-hidden shadow-2xl will-change-transform"
+      className="absolute w-[360px] h-[240px] rounded-3xl overflow-hidden shadow-2xl will-change-transform bg-black"
     >
-      <motion.video
-        autoPlay
-        loop
-        muted
-        playsInline
-        style={{
-          filter: brightness,
-        }}
-        className="w-full h-full object-cover"
-      >
-        <source src={video} type="video/mp4" />
-      </motion.video>
+      {/* 🎥 Video Card */}
+      {!splineScene && (
+        <motion.video
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{ filter: brightness }}
+          className="w-full h-full object-cover"
+        >
+          <source src={video} type="video/mp4" />
+        </motion.video>
+      )}
 
-      <motion.div
-        style={{ opacity: glowOpacity }}
-        className="absolute inset-0 bg-white/10 backdrop-blur-md"
-      />
+      {/* 🔥 Spline Card */}
+      {splineScene && (
+        <div className="w-full h-full">
+          <Spline
+            scene={splineScene}
+            className="absolute inset-0 w-full h-full"
+          />
+        </div>
+      )}
+
+      {/* ✨ Glass Glow (only for video cards) */}
+      {!splineScene && (
+        <motion.div
+          style={{ opacity: glowOpacity }}
+          className="absolute inset-0 bg-white/10 backdrop-blur-md"
+        />
+      )}
     </motion.div>
   )
 }
