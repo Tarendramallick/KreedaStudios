@@ -1,5 +1,6 @@
 
 import CurvedCarousel from "@/components/3DScroll";
+import Features from "@/components/Footer";
 import FloatingTitle from "@/components/Gallery";
 import GameDashboard from "@/components/GameDashboard";
 import Header from "@/components/Header";
@@ -14,6 +15,7 @@ export default function Home() {
       <FloatingTitle />
       <CurvedCarousel />
       <GameDashboard />
+      <Features />
     </main>
   );
 }
